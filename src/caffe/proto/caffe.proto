@@ -1024,7 +1024,6 @@ message V1LayerParameter {
     ABSVAL = 35;
     ACCURACY = 1;
     ARGMAX = 30;
-    BN = 43;
     BNLL = 2;
     CONCAT = 3;
     CONTRASTIVE_LOSS = 37;
