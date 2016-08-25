@@ -81,24 +81,31 @@ void DenseImageDataLayer<Dtype>::DataLayerSetUp(const vector<Blob<Dtype>*>& bott
 
   const int crop_size = this->layer_param_.transform_param().crop_size();
   const int batch_size = this->layer_param_.dense_image_data_param().batch_size();
-  CHECK(!(crop_size > 0) && !(crop_height > 0)) << "crop_size and crop_height/width have yet to be updated to reflect changes BVLC/caffe#ddcdc9d711e81312caf127e8aa512c3298101297";
 
   if (crop_size > 0) {
-    // top[0]->Reshape(batch_size, channels, crop_size, crop_size);
-    // this->prefetch_data_.Reshape(batch_size, channels, crop_size, crop_size);
-    // this->transformed_data_.Reshape(1, channels, crop_size, crop_size);
-    // // similarly reshape label data blobs
-    // top[1]->Reshape(batch_size, 1, crop_size, crop_size);
-    // this->prefetch_label_.Reshape(batch_size, 1, crop_size, crop_size);
-    // this->transformed_label_.Reshape(1, 1, crop_size, crop_size);
+    for (int i = 0; i < this->PREFETCH_COUNT; ++i) {
+      this->prefetch_[i].data_.Reshape(batch_size, channels, crop_size, crop_size);
+    }
+    top[0]->Reshape(batch_size, channels, crop_size, crop_size);
+    this->transformed_data_.Reshape(1, channels, crop_size, crop_size);
+    // similarly reshape label data blobs
+    for (int i = 0; i < this->PREFETCH_COUNT; ++i) {
+      this->prefetch_[i].label_.Reshape(batch_size, 1, crop_size, crop_size);
+    }
+    top[1]->Reshape(batch_size, 1, crop_size, crop_size);
+    this->transformed_label_.Reshape(1, 1, crop_size, crop_size);
   } else if (crop_height > 0 && crop_width > 0) {
-    // top[0]->Reshape(batch_size, channels, crop_height, crop_width);
-    // this->prefetch_data_.Reshape(batch_size, channels, crop_height, crop_width);
-    // this->transformed_data_.Reshape(1, channels, crop_height, crop_width);
-    // // similarly reshape label data blobs
-    // top[1]->Reshape(batch_size, 1, crop_height, crop_width);
-    // this->prefetch_label_.Reshape(batch_size, 1, crop_height, crop_width);
-    // this->transformed_label_.Reshape(1, 1, crop_height, crop_width);
+    for (int i = 0; i < this->PREFETCH_COUNT; ++i) {
+      this->prefetch_[i].data_.Reshape(batch_size, channels, crop_height, crop_width);
+    }
+    top[0]->Reshape(batch_size, channels, crop_height, crop_width);
+    this->transformed_data_.Reshape(1, channels, crop_height, crop_width);
+    // similarly reshape label data blobs
+    for (int i = 0; i < this->PREFETCH_COUNT; ++i) {
+      this->prefetch_[i].label_.Reshape(batch_size, 1, crop_height, crop_width);
+    }
+    top[1]->Reshape(batch_size, 1, crop_height, crop_width);
+    this->transformed_label_.Reshape(1, 1, crop_height, crop_width);
   } else {
     for (int i = 0; i < this->PREFETCH_COUNT; ++i) {
       this->prefetch_[i].data_.Reshape(batch_size, channels, height, width);
